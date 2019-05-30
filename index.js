@@ -11,7 +11,8 @@ module.exports = function (options) {
   this.addPlugin({
     fileName: 'captcha.js',
     options,
-    src: resolve(__dirname, './plugin.js')
+    src: resolve(__dirname, './plugin.js'),
+    mode: 'client',
   })
   if (options.hideBadge) {
     this.options.css.push(resolve(__dirname, './hide.css'))

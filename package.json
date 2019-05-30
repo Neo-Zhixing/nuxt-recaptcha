@@ -1,0 +1,7 @@
+{
+  "name": "nuxt-recaptcha",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": "https://github.com/Neo-Zhixing/nuxt-recaptcha"
+}

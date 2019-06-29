@@ -58,7 +58,12 @@ export default function (_, inject) {
     function execute() {
       return new Promise((resolve, reject) => {
         window.grecaptcha.execute()
-        EventBus.$on('token', token => resolve(token))
+        function handler (token) {
+          resolve(token)
+          EventBus.$off(handler)
+          window.grecaptcha.reset()
+        }
+        EventBus.$on('token', handler)
       })
     }
     execute.reset = window.grecaptcha.reset

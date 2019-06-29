@@ -56,17 +56,19 @@ const component =  {
 export default function (_, inject) {
   if (process.client) {
     function execute() {
-      return new Promise((resolve, reject) => {
-        window.grecaptcha.execute()
+      return window.recaptchaReadyPromise
+      .then((grecaptcha) => new Promise((resolve) => {
+        grecaptcha.execute()
         function handler (token) {
           resolve(token)
           EventBus.$off(handler)
-          window.grecaptcha.reset()
         }
         EventBus.$on('token', handler)
-      })
+      }))
     }
-    execute.reset = window.grecaptcha.reset
+    execute.reset = function() {
+      window.recaptchaReadyPromise.then((grecaptcha) => grecaptcha.reset())
+    }
     inject('captcha', execute)
   }
   Vue.component('captcha', component)

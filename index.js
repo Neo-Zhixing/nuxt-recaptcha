@@ -7,10 +7,12 @@ module.exports = function (options) {
     src: API_URL + '?onload=nuxtRecaptchaCallback&render=explicit',
     defer: true,
     async: true,
+    id: 'grecaptcha-js'
   })
   this.options.head.script.push({
-    innerHTML: 'window.recaptchaReadyPromise=new Promise(function(resolve){window.nuxtRecaptchaCallback=resolve});'
+    innerHTML: "window.recaptchaReadyPromise=new Promise(function(re, rj){window.nuxtRecaptchaCallback=function(){re(window.grecaptcha)};document.getElementById('grecaptcha-js').onerror=rj});"
   })
+  this.options.head.__dangerouslyDisableSanitizers = ['script']
   this.addPlugin({
     fileName: 'plugin.js',
     options,

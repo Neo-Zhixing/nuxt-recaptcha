@@ -1,15 +1,68 @@
+import Vue from 'vue'
+
 const options = <%= serialize(options) %>
 
-function execute(action) {
-  const ready = new Promise((resolve, reject) => {
-    if (window.grecaptcha)
-      window.grecaptcha.ready(resolve)
-    else
-      reject(new Error('reCaptcha not loaded'))
-  })
-  return ready.then(() => window.grecaptcha.execute(options.key, { action }))
+const EventBus = new Vue()
+
+const component =  {
+  render(h) {
+    return h('div', { class: { 'recaptcha-container': true } })
+  },
+  props: {
+    theme: {
+      type: String,
+      default: 'light',
+      validator: value => value === 'light' || value === 'dark',
+    },
+    badge: {
+      type: String,
+      default: 'inline',
+      validator: value => ['bottomright', 'bottomleft', 'inline'].includes(value),
+    },
+    invisible: {
+      type: Boolean,
+      default: false,
+    }
+  },
+  mounted() {
+    const renderOptions = {
+      sitekey: options.key,
+      theme: this.theme,
+      badge: this.badge,
+    }
+    if (this.invisible) {
+      renderOptions.size = 'invisible'
+    }
+    window.recaptchaReadyPromise
+      .then(() => window.grecaptcha.render(
+        this.$el,
+        {
+          ...renderOptions,
+          callback: (res) => {
+            this.$emit('update:token', res)
+            EventBus.$emit('token', res)
+          },
+          'expired-callback' () {
+            this.$emit('update:token', null)
+          },
+          'error-callback' () {
+            this.$emit('update:token', null)
+          },
+      }))
+  },
 }
 
+
 export default function (_, inject) {
-  inject('captcha', execute)
+  if (process.client) {
+    function execute() {
+      return new Promise((resolve, reject) => {
+        window.grecaptcha.execute()
+        EventBus.$on('token', token => resolve(token))
+      })
+    }
+    execute.reset = window.grecaptcha.reset
+    inject('captcha', execute)
+  }
+  Vue.component('captcha', component)
 }

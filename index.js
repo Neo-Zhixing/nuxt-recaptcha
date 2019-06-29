@@ -4,19 +4,18 @@ const API_URL = 'https://www.google.com/recaptcha/api.js'
 
 module.exports = function (options) {
   this.options.head.script.push({
-    src: `${API_URL}?render=${options.key}`,
+    src: API_URL + '?onload=nuxtRecaptchaCallback&render=explicit',
     defer: true,
     async: true,
   })
+  this.options.head.script.push({
+    innerHTML: 'window.recaptchaReadyPromise=new Promise(function(resolve){window.nuxtRecaptchaCallback=resolve});'
+  })
   this.addPlugin({
-    fileName: 'captcha.js',
+    fileName: 'plugin.js',
     options,
     src: resolve(__dirname, './plugin.js'),
-    mode: 'client',
   })
-  if (options.hideBadge) {
-    this.options.css.push(resolve(__dirname, './hide.css'))
-  }
 }
 
 module.exports.meta = require('./package.json')

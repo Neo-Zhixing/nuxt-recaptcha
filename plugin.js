@@ -6,7 +6,11 @@ const EventBus = new Vue()
 
 const component =  {
   render(h) {
-    return h('div', { class: { 'recaptcha-container': true } })
+    return h(
+      'div',
+      { class: { 'recaptcha-container': true } },
+      [ this.$slots.default ]
+    )
   },
   props: {
     theme: {
